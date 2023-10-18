@@ -3,6 +3,6 @@ const router = express.Router();
 
 const ImageController = require("../controllers/ImageController")
 
-router.post("/encode", express.raw({type: '*/*'}), ImageController.encodeBlurhash);
+router.post("/encode", express.raw({type: '*/*', limit: '1mb'}), ImageController.encodeBlurhash);
 
 module.exports = router;
