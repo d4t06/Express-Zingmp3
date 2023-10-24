@@ -3,7 +3,7 @@
       "src": "index.js",
       "usee": "@vercel/node"
    },
-   "routers": {
+   "routes": {
       "src": "/(.*)",
       "dest": "index.js"
    }
