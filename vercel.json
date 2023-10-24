@@ -1,0 +1,10 @@
+{
+   "builds" : {
+      "src": "index.js",
+      "usee": "@vercel/node"
+   },
+   "routers": {
+      "src": "/(.*)",
+      "dest": "index.js"
+   }
+}
