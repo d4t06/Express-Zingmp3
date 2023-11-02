@@ -17,20 +17,26 @@ class ImageController {
    async encodeBlurhash(req, res) {
       try {
          const imageBlob = req.body;
+         if (!imageBlob) return res.status(500).json({ message: "No have image blob" });
+
          const { encoded, timeConsuming } = await getEncode(imageBlob);
-
-         console.log("encode finished after", timeConsuming);
-
+         
+         console.log("Encode finished after", timeConsuming);
          res.json({ encode: encoded });
       } catch (error) {
          console.log(error);
-         res.status(500).json({ error: error.message });
+         res.status(500).json({ message: error.message });
       }
    }
 
    async optimize(req, res) {
       try {
-         const imageBuffer = req.file.buffer;
+         const file = req.file;
+         if (!file) return res.status(500).json({ message: "No have file" });
+
+         const imageBuffer = file.buffer;
+         if (!imageBuffer)
+            return res.status(500).json({ message: "No have image buffer" });
 
          const start = Date.now();
          const newImageBuffer = await sharp(imageBuffer)
@@ -38,12 +44,11 @@ class ImageController {
             .toBuffer();
          const finish = Date.now();
 
-         console.log("optimize finished after", (finish - start) / 1000);
+         console.log("Optimize finished after", (finish - start) / 1000);
          res.send(newImageBuffer);
-
       } catch (error) {
          console.log(error);
-         res.status(500).json({ error: error.message });
+         res.status(500).json({ message: error.message });
       }
    }
 }
