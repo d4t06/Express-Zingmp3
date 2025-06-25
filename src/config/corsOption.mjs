@@ -1,7 +1,7 @@
-const whiteList =
-   typeof process.env.WHITE_LIST.split(", ") === "object"
-      ? process.env.WHITE_LIST.split(", ")
-      : [];
+import dotenv from "dotenv";
+dotenv.config({ path: `.env.local`, override: true });
+
+const whiteList = (process.env.WHITE_LIST || "").split(", ");
 
 const corsOptions = {
    // Credential: true,
@@ -13,4 +13,4 @@ const corsOptions = {
    optionsSuccessStatus: 200,
 };
 
-module.exports = corsOptions;
+export default corsOptions;
