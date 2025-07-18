@@ -6,9 +6,7 @@ const storageRouter = Router();
 
 storageRouter.use(authMiddleWare);
 
-const storageService = new StorageService();
-
-storageRouter.get("/auth", storageService.auth.bind(storageService));
-storageRouter.delete("/:fileId", storageService.delete.bind(storageService));
+storageRouter.get("/auth", StorageService.auth);
+storageRouter.delete("/:fileId", StorageService.delete);
 
 export default storageRouter;

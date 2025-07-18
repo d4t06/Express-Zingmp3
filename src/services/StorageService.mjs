@@ -11,7 +11,7 @@ class StorageService {
 		});
 	}
 
-	async auth(_req, res, next) {
+	auth = async (_req, res, next) => {
 		try {
 			const { token, expire, signature } =
 				this.imagekit.getAuthenticationParameters();
@@ -25,16 +25,16 @@ class StorageService {
 		} catch (error) {
 			next(error);
 		}
-	}
+	};
 
-	async delete(req, res, next) {
+	delete = async (req, res, next) => {
 		try {
 			await this.imagekit.deleteFile(req.params.fileId);
 			return res.success(200, "Delete file ok");
 		} catch (error) {
 			next(error);
 		}
-	}
+	};
 }
 
-export default StorageService;
+export default new StorageService();

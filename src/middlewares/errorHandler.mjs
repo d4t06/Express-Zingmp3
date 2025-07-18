@@ -1,3 +1,4 @@
+import { FirebaseAuthError } from "firebase-admin/auth";
 import AccessDenied from "../system/errors/AccesDenie.mjs";
 import BadRequest from "../system/errors/BadRequest.mjs";
 import Forbiden from "../system/errors/Forbiden.mjs";
@@ -14,6 +15,8 @@ export default function errorHandler(error, _req, res, _next) {
   if (error instanceof AccessDenied) return res.error(403, error.message);
 
   if (error instanceof Forbiden) return res.error(403, error.message);
+  
+  if (error instanceof FirebaseAuthError) return res.error(401, error.message);
 
   console.log(error.message);
 
