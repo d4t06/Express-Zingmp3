@@ -1,11 +1,11 @@
 import imageRouter from "./image.mjs";
-import songDailyRoute from "./song-daily.mjs";
+import songRoute from "./song.mjs";
 import storageRouter from "./storage.mjs";
 
 export default function appRoute(app) {
   app.use("/api/image", imageRouter);
   app.use("/api/storage", storageRouter);
-  app.use("/api/song-daily", songDailyRoute);
+  app.use("/api/trending-metric", songRoute);
 
   app.get("/api/greeting", (_req, res) => {
     res.success(200, null, "Gretting");

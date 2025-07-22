@@ -1,5 +1,6 @@
+
 ###
-GET http://localhost:4000/api/song-daily/summary
+GET http://localhost:4000/api/trending-metric/summary
 
 
 ###
