@@ -39,12 +39,21 @@ class ImageController {
       const file = req.file;
       if (!file) return res.error(400, "No have file");
 
+      const { height, width } = req.query;
+
+      console.log(req.query);
+
+      const _height =
+        height && !isNaN(+height) && +height > 100 ? +height : 500;
+
+      const _width = width && !isNaN(+width) && +width > 100 ? +width : 500;
+
       const imageBuffer = file.buffer;
       if (!imageBuffer) return res.error(400, "No have image buffer");
 
       const start = Date.now();
       const newImageBuffer = await sharp(imageBuffer)
-        .resize({ width: 500, height: 500, fit: "cover" })
+        .resize({ width: _width, height: _height, fit: "cover" })
         .toBuffer();
       const finish = Date.now();
 

@@ -13,8 +13,8 @@ function getWeekAndYear(date) {
   return { week: weekNo, year: d.getUTCFullYear() };
 }
 
-class SongService {
-  weeklySummarize = async (req, res, next) => {
+class TrendingService {
+  songSummarize = async (req, res, next) => {
     try {
       // Calculate the timestamp for one week ago
       const oneWeekAgo = new Date();
@@ -28,6 +28,7 @@ class SongService {
 
       if (genreSnap.empty) return res.error(404, "No genre");
 
+      // main_genre.id, week_play, last_active indexes
       const queriesRef = genreSnap.docs.map((doc) => {
         return db
           .collection("Songs")
@@ -46,7 +47,7 @@ class SongService {
         const trendingSongs = [];
 
         snapshot.docs.forEach((doc) => {
-          const songRef = doc.ref;  
+          const songRef = doc.ref;
 
           const songData = doc.data();
 
@@ -92,6 +93,45 @@ class SongService {
     }
   };
 
+  searchLogSummarize = async (req, res, next) => {
+    try {
+      const keywordCount = {};
+
+      const searchLogSnap = await db.collection("Search_Logs").get();
+
+      if (searchLogSnap.empty) return res.success(200, "No new search log");
+
+      const batch = db.batch();
+
+      searchLogSnap.forEach((doc) => {
+        keywordCount[doc.data().keyword] =
+          (keywordCount[doc.data().keyword] || 0) + 1;
+
+        batch.delete(doc.ref);
+      });
+
+      for (const keyword in keywordCount) {
+        const count = keywordCount[keyword];
+        const trendingRef = db.collection("Trending_Keywords").doc(keyword);
+
+        const trendingData = {
+          today_count: FieldValue.increment(count),
+          week_count: FieldValue.increment(count),
+          today_count: FieldValue.increment(count),
+          updated_at: FieldValue.serverTimestamp(),
+        };
+
+        batch.set(trendingRef, trendingData, { merge: true });
+      }
+
+      await batch.commit();
+
+      res.success(200, "Summarize search logs successful");
+    } catch (error) {
+      next(error);
+    }
+  };
+
   test = async (req, res, next) => {
     try {
       const oneWeekAgo = new Date();
@@ -118,4 +158,4 @@ class SongService {
   };
 }
 
-export default new SongService();
+export default new TrendingService();
