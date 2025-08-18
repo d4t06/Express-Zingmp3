@@ -14,9 +14,8 @@ function getWeekAndYear(date) {
 }
 
 class TrendingService {
-  songSummarize = async (req, res, next) => {
+  songSummarize = async (_req, res, next) => {
     try {
-      // Calculate the timestamp for one week ago
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -28,7 +27,6 @@ class TrendingService {
 
       if (genreSnap.empty) return res.error(404, "No genre");
 
-      // main_genre.id, week_play, last_active indexes
       const queriesRef = genreSnap.docs.map((doc) => {
         return db
           .collection("Songs")
@@ -65,7 +63,7 @@ class TrendingService {
 
           batch.update(songRef, {
             last_week_play: currentWeekPlays,
-            // week_play: 0, // Reset for the new week
+            week_play: 0, // Reset for the new week
             trending_score: trendingScore,
           });
 
@@ -103,7 +101,7 @@ class TrendingService {
 
       const batch = db.batch();
 
-      searchLogSnap.forEach((doc) => {
+      searchLogSnap.docs.forEach((doc) => {
         keywordCount[doc.data().keyword] =
           (keywordCount[doc.data().keyword] || 0) + 1;
 
@@ -115,8 +113,6 @@ class TrendingService {
         const trendingRef = db.collection("Trending_Keywords").doc(keyword);
 
         const trendingData = {
-          today_count: FieldValue.increment(count),
-          week_count: FieldValue.increment(count),
           today_count: FieldValue.increment(count),
           updated_at: FieldValue.serverTimestamp(),
         };
@@ -132,26 +128,28 @@ class TrendingService {
     }
   };
 
-  test = async (req, res, next) => {
+  keywordDailyCleanUp = async (_req, res, next) => {
     try {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      const keywordSnap = await db
+        .collection("Trending_Keywords")
+        .orderBy("today_count", "desc")
+        .get();
 
-      const oneWeekAgoTimestamp = Timestamp.fromDate(oneWeekAgo);
+      if (keywordSnap.empty) return res.success(200, "No new trending keyword");
 
-      const q = db
-        .collection("Songs")
-        .where(`main_genre.id`, "==", "HYXwjZuEG8NXDGZ3C9gf")
-        .where("last_active", ">=", oneWeekAgoTimestamp)
-        .orderBy("week_play", "desc")
-        .limit(5);
+      const batch = db.batch();
 
-      const snap = await q.get();
+      keywordSnap.docs.forEach((doc, i) => {
+        if (i < 3) {
+          batch.update(doc.ref, { today_count: -i + 3 });
+        } else {
+          batch.delete(doc.ref);
+        }
+      });
 
-      res.success(
-        200,
-        snap.docs.map((d) => d.data()),
-      );
+      await batch.commit();
+
+      res.success(200, "keywordDailyCleanUp successful");
     } catch (error) {
       next(error);
     }

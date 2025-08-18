@@ -28,6 +28,6 @@ app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(
-    `App listening on port ${port}, WHITE_LIST: ${process.env.WHITE_LIST || ""}`,
+    `App listening on port  ${port}, WHITE_LIST: ${process.env.WHITE_LIST || ""}`,
   );
 });

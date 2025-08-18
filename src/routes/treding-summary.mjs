@@ -3,9 +3,8 @@ import TrendingService from "../services/TrendingService.mjs";
 
 const trendingRoute = Router();
 
-
-trendingRoute.get("/song", TrendingService.songSummarize);
+trendingRoute.get("/song-weekly", TrendingService.songSummarize);
 trendingRoute.get("/search-log", TrendingService.searchLogSummarize);
-trendingRoute.get("/test", TrendingService.test);
+trendingRoute.get("/search-daily", TrendingService.keywordDailyCleanUp);
 
 export default trendingRoute;

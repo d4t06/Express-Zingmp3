@@ -8,7 +8,7 @@ const upload = multer({ storage: storage });
 
 imageRouter.post(
 	"/encode",
-	raw({ type: "*/*", limit: "1mb" }),
+	raw({ type: "*/*", limit: "3mb" }),
 	ImageService.encodeBlurhash,
 );
 

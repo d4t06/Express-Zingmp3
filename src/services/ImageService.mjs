@@ -28,6 +28,7 @@ class ImageController {
       const { encoded, timeConsuming } = await getEncode(imageBlob);
 
       console.log("Encode finished after", timeConsuming);
+
       res.success(200, { encode: encoded }, "encode ok");
     } catch (error) {
       next(error);
@@ -40,8 +41,6 @@ class ImageController {
       if (!file) return res.error(400, "No have file");
 
       const { height, width } = req.query;
-
-      console.log(req.query);
 
       const _height =
         height && !isNaN(+height) && +height > 100 ? +height : 500;
@@ -58,6 +57,7 @@ class ImageController {
       const finish = Date.now();
 
       console.log("Optimize finished after", (finish - start) / 1000);
+
       res.send(newImageBuffer);
     } catch (error) {
       next(error);
