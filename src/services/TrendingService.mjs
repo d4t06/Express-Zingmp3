@@ -7,14 +7,14 @@ function getWeekAndYear(date) {
   );
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil(
+  const currentWeek = Math.ceil(
     ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
   );
-  return { week: weekNo, year: d.getUTCFullYear() };
+  return { currentWeek, currentYear: d.getUTCFullYear() };
 }
 
 class TrendingService {
-  songSummarize = async (_req, res, next) => {
+  songSummarize = async (req, res, next) => {
     try {
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -33,7 +33,7 @@ class TrendingService {
           .where(`main_genre.id`, "==", doc.id)
           .where("last_active", ">=", oneWeekAgoTimestamp)
           .orderBy("week_play", "desc")
-          .limit(5);
+          .limit(10);
       });
 
       const trendingSongMap = {};
@@ -44,46 +44,37 @@ class TrendingService {
       snapshots.forEach((snapshot, i) => {
         const trendingSongs = [];
 
-        snapshot.docs.forEach((doc) => {
-          const songRef = doc.ref;
-
+        snapshot.docs.forEach((doc, j) => {
           const songData = doc.data();
 
-          const currentWeekPlays = songData.week_play || 0;
-          const lastWeekPlays = songData.last_week_play || 0;
-
-          let trendingScore = 0;
-          if (lastWeekPlays > 0) {
-            trendingScore =
-              (currentWeekPlays - lastWeekPlays) / (lastWeekPlays + 1);
-          } else if (currentWeekPlays > 0) {
-            // For new songs or songs that had 0 plays last week but plays this week
-            trendingScore = currentWeekPlays;
-          }
-
-          batch.update(songRef, {
-            last_week_play: currentWeekPlays,
-            week_play: 0, // Reset for the new week
-            trending_score: trendingScore,
+          batch.update(doc.ref, {
+            week_play: 0,
+            rank: j + 1,
           });
 
           trendingSongs.push({
             song_id: doc.id,
-            week_play: currentWeekPlays,
-            trending_score: trendingScore,
+            last_week_rank: songData.rank || 0,
+            rank: j + 1,
           });
         });
 
-        trendingSongMap[genreSnap.docs[i].id] = [...trendingSongs];
+        trendingSongMap[genreSnap.docs[i].id] = trendingSongs;
       });
 
-      const { week: weekNumber, year } = getWeekAndYear(oneWeekAgo);
-      const weekDocId = `${year}-W${String(weekNumber).padStart(2, "0")}`;
+      const { currentWeek, currentYear } = getWeekAndYear(oneWeekAgo);
 
-      await db.collection("Trending_Metrics").doc(weekDocId).set({
-        trending_songs: trendingSongMap,
-        created_at: FieldValue.serverTimestamp(),
-      });
+      const { week = currentWeek } = req.query;
+
+      const weekDocId = `${currentYear}-W${String(week).padStart(2, "0")}`;
+
+      await Promise.all[
+        (db.collection("Trending_Songs").doc(weekDocId).set({
+          trending_songs: trendingSongMap,
+          created_at: FieldValue.serverTimestamp(),
+        }),
+        batch.commit())
+      ];
 
       res.success(200, "Weekly summarize successful");
     } catch (error) {
@@ -91,7 +82,7 @@ class TrendingService {
     }
   };
 
-  searchLogSummarize = async (req, res, next) => {
+  searchLogSummarize = async (_req, res, next) => {
     try {
       const keywordCount = {};
 
@@ -150,6 +141,27 @@ class TrendingService {
       await batch.commit();
 
       res.success(200, "keywordDailyCleanUp successful");
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  resetSongRank = async (_req, res, next) => {
+    try {
+      const songSnapss = await db
+        .collection("Songs")
+        .orderBy("week_play", "desc")
+        .get();
+
+      const batch = db.batch();
+
+      songSnapss.docs.forEach((doc) => {
+        batch.update(doc.ref, { rank: 0 });
+      });
+
+      await batch.commit();
+
+      res.success(200, "rest song rank successful");
     } catch (error) {
       next(error);
     }
