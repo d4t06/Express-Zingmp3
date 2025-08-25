@@ -4,7 +4,7 @@ import cronCheckSecret from "../middlewares/cronCheckSecret.mjs";
 
 const trendingRoute = Router();
 
-trendingRoute.use(cronCheckSecret);
+// trendingRoute.use(cronCheckSecret);
 
 trendingRoute.get("/song-weekly", TrendingService.songSummarize);
 trendingRoute.get("/search-log", TrendingService.searchLogSummarize);
