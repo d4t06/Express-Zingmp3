@@ -12,8 +12,8 @@ const getEncode = async (input) => {
     new Uint8ClampedArray(data),
     info.width,
     info.height,
-    4,
-    4,
+    2,
+    2,
   );
   const timeConsuming = (Date.now() - before) / 1000;
   return { encoded, timeConsuming };
