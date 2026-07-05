@@ -1,6 +1,6 @@
 import { Router } from "express";
 import TrendingService from "../services/TrendingService.mjs";
-import cronCheckSecret from "../middlewares/cronCheckSecret.mjs";
+// import cronCheckSecret from "../middlewares/cronCheckSecret.mjs";
 
 const trendingRoute = Router();
 
