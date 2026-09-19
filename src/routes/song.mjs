@@ -1,8 +1,10 @@
 import { Router } from "express";
-import SongService from "../services/song_service.mjs";
+import SongService from "../services/SongService.mjs";
 
 const songRouter = Router();
 
-songRouter.get("/", SongService.getSongs);
+const songService = new SongService()
+
+songRouter.get("/", songService.getSongs);
 
 export default songRouter;

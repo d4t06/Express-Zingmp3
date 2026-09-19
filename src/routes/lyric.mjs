@@ -1,5 +1,5 @@
 import { Router } from "express";
-import LyricService from "../services/lyric_service.mjs";
+import LyricService from "../services/LyricService.mjs";
 
 const lyricRouter = Router();
 

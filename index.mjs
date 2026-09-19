@@ -1,5 +1,5 @@
-// import cors config and config dotenv
-import corsOptions from "./src/config/corsOption.mjs";
+// config dotenv
+import "./src/config/dotenv.mjs";
 
 // init firebase app
 import "./src/firebase/index.mjs";
@@ -9,6 +9,7 @@ import express from "express";
 import appRoute from "./src/routes/index.mjs";
 import customResponse from "./src/system/customResponse.mjs";
 import errorHandler from "./src/middlewares/errorHandler.mjs";
+import corsOptions from "./src/config/corsOption.mjs";
 
 const port = process.env.PORT || 4000;
 

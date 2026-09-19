@@ -94,4 +94,4 @@ class SongService {
 	}
 }
 
-export default new SongService();
+export default SongService;

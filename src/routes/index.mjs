@@ -21,7 +21,7 @@ export default function appRoute(app) {
     res.success(200, null, "OK");
   });
 
-  app.use("*", (_req, res) => {
+  app.use("/*", (_req, res) => {
     res.error(404, "endpoint not found");
   });
 }
